@@ -10,25 +10,28 @@ struct ListNode{
 };
 
 class LinkedList{
+private:
+    ListNode* head;
+    int length = 0;
+
 public:
-    ListNode* insert_begin(ListNode*& head, int n){
-        if(!head){
-            head = new ListNode(n);
-            return head;
-        }
-        
+    LinkedList() : head(nullptr) {}
+
+    void insert_begin(int n){
+        ++length;
+
         ListNode* temp = new ListNode(n, head);
         head = temp;
-
-        return head;
     }
 
 
 
-    ListNode* insert_end(ListNode*& head, int n){
+    void insert_end(int n){
+        ++length;
+
         if(!head){
             head = new ListNode(n);
-            return head;
+            return;
         }
 
         ListNode* temp = head;
@@ -36,22 +39,34 @@ public:
 
         ListNode* temp1 = new ListNode(n);
         temp->next = temp1;
-
-        return head;
     }
 
 
 
-    ListNode* insert_index(ListNode*& head, int index, int n){
-        if(!head){
+    void insert_index(int index, int n){
+        if(!head && index == 0){
+            ++length;
             head = new ListNode(n);
-            return head;
+            return;
         }
 
-        if(index == 0){
-            head = insert_begin(head, n);
-            return head;
+        else if(!head && index > 0) cout << "Invalid Index\n";
+
+        else if(index < 0 || index > length + 1) cout << "Invalid Index\n";
+
+        else if(index == 0){
+            insert_begin(n);
+            ++length;
+            return;
         }
+
+        else if(index == length + 1){
+            insert_end(n);
+            ++length;
+            return;
+        }
+
+        ++length;
 
         ListNode* temp = head;
         int i = 0;
@@ -61,36 +76,32 @@ public:
             temp = temp->next;
         }
 
-        if(!temp->next && i < index - 1) cout << "Invalid Index\n";
-
-        else if(!temp->next && i == index - 1) temp->next = new ListNode(n);
-
-        else{
-            ListNode* temp1 = new ListNode(n, temp->next);
-            temp->next = temp1;
-        }
-
-        return head;
+        ListNode* temp1 = new ListNode(n, temp->next);
+        temp->next = temp1;
     }
 
 
 
-    ListNode* del_begin(ListNode*& head){
-        if(!head) return head;
+    void del_begin(){
+        if(!head) return;
+        --length;
 
         ListNode* temp = head;
         head = head->next;
 
         delete temp;
-        return head;
     }
 
 
 
-    ListNode* del_end(ListNode*& head){
-        if(!head) return head;
+    void del_end(){
+        if(!head) return;
+        --length;
 
-        if(!head->next) return nullptr;
+        if(!head->next){
+            head = nullptr;
+            return;
+        }
 
         ListNode* temp = head;
         while(temp->next->next) temp = temp->next;
@@ -99,27 +110,28 @@ public:
         temp->next = nullptr;
 
         delete temp1;
-        return head;
     }
 
 
 
-    ListNode* del_index(ListNode*& head, int index){
-        if(!head) return head;
+    void del_index(int index){
+        if(!head) return;
 
-        if(index < 0){
+        if(index < 0 || index > length){
             cout << "Invalid Index\n";
-            return head;
+            return;
         }
 
         else if(index == 0){
             ListNode* temp = head;
             head = head->next;
+            --length;
 
             delete temp;
-            return head;
+            return;
         }
         
+        --length;
 
         ListNode* temp = head;
         int i = 0;
@@ -129,34 +141,39 @@ public:
             ++i;
         }
 
-        if(!temp->next && i <= index - 1) cout << "Invalid Index\n";
+        
+        ListNode* temp1 = temp->next;
+        temp->next = temp->next->next;
 
-        else{
-            ListNode* temp1 = temp->next;
-            temp->next = temp->next->next;
-
-            delete temp1;
-        }
-            
-        return head;
+        delete temp1;
     }
 
 
 
-    ListNode* del_val(ListNode*& head, int n){
-        if(!head) return head;
+    void del_val(int n){
+        if(!head) return;
+
+        else if(head->val == n){
+            ListNode* temp = head;
+            head = head->next;
+            --length;
+
+            delete temp;
+            return;
+        }
 
         else if(!head->next && head->val != n){
             cout << "No maching value found\n";
-            return head;
+            return;
         }
 
         else if(!head->next && head->val == n){
             ListNode* temp = head;
             head = head->next;
+            --length;
 
             delete temp;
-            return head;
+            return;
         }
 
         
@@ -164,21 +181,27 @@ public:
 
         while(temp->next->next && temp->next->val != n) temp = temp->next;
 
-        if(!temp->next->next && temp->next->val != n) cout << "No matching value found\n";
+        if(!temp->next->next && temp->next->val != n){
+            cout << "No matching value found\n";
+            return;
+        }
+
         else if(!temp->next->next && temp->next->val == n) temp->next = temp->next->next;
+
         else{
             ListNode* temp1 = temp->next;
             temp->next = temp->next->next;
 
             delete temp1;
         }
+        --length;
 
-        return head;
+        return;
     }
 
 
 
-    void display(ListNode*& head){
+    void display(){
         ListNode* temp = head;
 
         while(temp){
@@ -189,60 +212,60 @@ public:
         cout << endl;
 
         delete temp;
+        // cout << "Size: " << length << endl;
     }
 };
 
 int main(){
     LinkedList l;
-    ListNode* head = nullptr;
 
-    head = l.insert_begin(head, 1);
-    l.display(head);
+    l.insert_begin(1);
+    l.display();
 
-    head = l.insert_end(head, 2);
-    l.display(head);
+    l.insert_end(2);
+    l.display();
 
-    head = l.insert_index(head, 2, 3);  // 0-indexed
-    l.display(head);
+    l.insert_index(2, 3);  // 0-indexed
+    l.display();
 
-    head = l.insert_index(head, 3, 4);  
-    l.display(head);
+    l.insert_index(3, 4);  
+    l.display();
 
-    head = l.insert_end(head, 5);  
-    l.display(head);
+    l.insert_end(5);  
+    l.display();
 
-    head = l.insert_end(head, 3);  
-    l.display(head);
+    l.insert_end(3);  
+    l.display();
 
-    head = l.del_begin(head);
-    l.display(head);
+    l.del_begin();
+    l.display();
 
-    head = l.del_end(head);
-    l.display(head);
+    l.del_end();
+    l.display();
 
-    head = l.del_index(head, 2);
-    l.display(head);
+    l.del_index(2);
+    l.display();
 
-    head = l.insert_begin(head, 3);
-    l.display(head);
+    l.insert_begin(3);
+    l.display();
 
-    head = l.insert_end(head, 3);
-    l.display(head);
+    l.insert_end(3);
+    l.display();
 
-    head = l.del_val(head, 3);
-    l.display(head);
+    l.del_val(3);
+    l.display();
 
-    head = l.del_begin(head);
-    l.display(head);
+    l.del_begin();
+    l.display();
     
-    head = l.del_end(head);
-    l.display(head);
+    l.del_end();
+    l.display();
 
-    head = l.del_end(head);
-    l.display(head);
+    l.del_end();
+    l.display();
 
-    head = l.del_val(head, 1);
-    l.display(head);
+    l.del_val(1);
+    l.display();
 
     return 0;
 }
